@@ -20,7 +20,7 @@ class BaseTool:
     def args(self) -> Dict[str, str]:
         raise NotImplementedError()
 
-    def run(**kwrags) -> str:
+    def run(self) -> str:
         raise NotImplementedError()
 
     @property

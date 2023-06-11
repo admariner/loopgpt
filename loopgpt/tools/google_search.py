@@ -22,11 +22,10 @@ class GoogleSearch(BaseTool):
     def _duckduckgo_search(self, query, num_results=8):
         from duckduckgo_search import ddg
 
-        results = []
-
-        for result in ddg(query, max_results=num_results):
-            results.append([result["title"], result["href"], result["body"]])
-
+        results = [
+            [result["title"], result["href"], result["body"]]
+            for result in ddg(query, max_results=num_results)
+        ]
         self._add_to_memory(query, results)
         return {"results": results}
 
@@ -40,11 +39,10 @@ class GoogleSearch(BaseTool):
             .execute()
             .get("items", [])
         )
-        results_ = []
-
-        for result in results:
-            results_.append([result["title"], result["link"], result["snippet"]])
-
+        results_ = [
+            [result["title"], result["link"], result["snippet"]]
+            for result in results
+        ]
         self._add_to_memory(query, results_)
 
         return {"results": results_}
