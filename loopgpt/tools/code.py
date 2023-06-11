@@ -42,7 +42,7 @@ class ExecutePythonFile(_BaseCodeTool):
         if not os.path.isfile(file):
             return {"output": f"File {file} does not exist."}
         if not file.lower().endswith(".py"):
-            return {"output": f"Only files with '.py' extension allowed."}
+            return {"output": "Only files with '.py' extension allowed."}
         res = subprocess.run(
             f"{sys.executable} {file}",
             capture_output=True,

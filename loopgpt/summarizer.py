@@ -18,13 +18,14 @@ class Summarizer:
         if self._model is None:
             if hasattr(self, "agent"):
                 model = self.agent.model
-                if type(model) == OpenAIModel:
-                    if model.model == "gpt-3.5-turbo":
-                        self._model = model
-                    else:
-                        self._model = OpenAIModel("gpt-3.5-turbo")
-                else:
+                if (
+                    type(model) == OpenAIModel
+                    and model.model == "gpt-3.5-turbo"
+                    or type(model) != OpenAIModel
+                ):
                     self._model = model
+                else:
+                    self._model = OpenAIModel("gpt-3.5-turbo")
             else:
                 self._model = OpenAIModel("gpt-3.5-turbo")
         return self._model
@@ -34,30 +35,25 @@ class Summarizer:
         resp = self.model.chat(
             [{"role": "user", "content": prompt}], temperature=0, max_tokens=300
         )
-        if "NO ANSWER" in resp.upper():
-            return ""  # FIXME
-        return resp
+        return "" if "NO ANSWER" in resp.upper() else resp
 
     def summarize_chunk(self, text, query):
         prompt = f"""Summarize the following text: \n"{text}"\n"""
-        resp = self.model.chat(
+        return self.model.chat(
             [{"role": "user", "content": prompt}], temperature=0, max_tokens=300
         )
-        return resp
 
     def qa_or_summarize_chunk(self, text, query):
-        ans = self.qa_chunk(text, query)
-        if ans:
+        if ans := self.qa_chunk(text, query):
             return {
                 "has_answer": True,
                 "answer": ans,
             }
-        else:
-            resp = self.summarize_chunk(text, query)
-            return {
-                "has_answer": False,
-                "summary": resp,
-            }
+        resp = self.summarize_chunk(text, query)
+        return {
+            "has_answer": False,
+            "summary": resp,
+        }
 
     def summarize(self, text: str, query: str):
         spinner = loopgpt.utils.spinner.ACTIVE_SPINNER
@@ -68,10 +64,8 @@ class Summarizer:
             if not query:
                 summary = self.summarize_chunk(chunk, query)
                 summaries.append(summary)
-            else:
-                ans = self.qa_chunk(chunk, query)
-                if ans:
-                    summaries.append(ans)
+            elif ans := self.qa_chunk(chunk, query):
+                summaries.append(ans)
         if not summaries:
             return "NOTHING FOUND", []
         summary = "\n".join(summaries)

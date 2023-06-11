@@ -74,7 +74,7 @@ class DeleteAgent(_AgentManagerTool):
             self.agent.sub_agents.pop(id)
             return {"resp": "Deleted."}
         except KeyError:
-            return {f"resp": "Specified agent (id={id} not found.)"}
+            return {"resp": "Specified agent (id={id} not found.)"}
 
 
 class ListAgents(_AgentManagerTool):
